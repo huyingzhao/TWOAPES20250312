@@ -86,9 +86,10 @@
 
     <!-- 修改搜索表单 -->
     <div class="row" style="margin-bottom: 20px;">
-        <form th:action="@{/notes/notes}" method="get" class="form-inline">
+        <form th:action="@{/notes/notes}" method="post" class="form-inline">
             <div class="form-group col-sm-8">
-                <input type="text" class="form-control" name="title" 
+                <label for="text">搜索：</label>
+                <input id="text" type="text" class="form-control" name="title"
                     placeholder="输入搜索关键词" style="width: 80%"
                     th:value="${param.title != null ? param.title : ''}">  <!-- 添加参数判断 -->
             </div>

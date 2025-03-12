@@ -18,7 +18,8 @@
     }
 
     h3.alert.alert-info {
-        height: 100px;
+        height: 60px; /* 从 100px 调整为 60px */
+        overflow-y: auto; /* 添加滚动条防止文字溢出 */
     }
 
     .col-sm-4 {
@@ -83,6 +84,20 @@
     </ol>
     <h1>瀑布式笔记</h1>
 
+    <!-- 修改搜索表单 -->
+    <div class="row" style="margin-bottom: 20px;">
+        <form th:action="@{/notes/notes}" method="get" class="form-inline">
+            <div class="form-group col-sm-8">
+                <input type="text" class="form-control" name="title" 
+                    placeholder="输入搜索关键词" style="width: 80%"
+                    th:value="${param.title != null ? param.title : ''}">  <!-- 添加参数判断 -->
+            </div>
+            <button type="submit" class="btn btn-primary col-sm-2">
+                <span class="glyphicon glyphicon-search"></span> 搜索
+            </button>
+        </form>
+    </div>
+
     <div class="row">
         <div th:each="notes : ${notes}" class="col-sm-4">
             <div class="thumbnail">
@@ -114,8 +129,8 @@
     <nav aria-label="Page navigation">
         <div class="text-center">
             <ul class="pagination">
-                <li class="${currentPage == 1 ? 'disabled' : ''}">
-                    <a th:href="@{/notes/notes(pageNum=${currentPage - 1})}" aria-label="Previous">
+                <li th:class="${currentPage == 1} ? 'disabled' : ''">
+                    <a th:href="@{/notes/notes(pageNum=${currentPage - 1}, title=${param.title})}" aria-label="Previous">
                         <span aria-hidden="true">&laquo;</span>
                     </a>
                 </li>
@@ -123,7 +138,7 @@
                 <!-- Display first page -->
                 <th:block th:if="${currentPage > 4}">
                     <li>
-                        <a th:href="@{/notes/notes(pageNum=1)}" th:text="'1'"></a>
+                        <a th:href="@{/notes/notes(pageNum=1, title=${param.title})}" th:text="'1'"></a>
                     </li>
                     <li class="disabled"><span>...</span></li>
                 </th:block>
@@ -132,7 +147,7 @@
                 <th:block th:each="page : ${#numbers.sequence(currentPage - 2, currentPage + 4)}"
                     th:if="${page >= 1 && page <= totalPages}">
                     <li class="${page == currentPage ? 'active' : ''}">
-                        <a th:href="@{/notes/notes(pageNum=${page})}" th:text="${page}"></a>
+                        <a th:href="@{/notes/notes(pageNum=${page}, title=${param.title})}" th:text="${page}"></a>
                     </li>
                 </th:block>
 
@@ -140,12 +155,12 @@
                 <th:block th:if="${currentPage < totalPages - 3}">
                     <li class="disabled"><span>...</span></li>
                     <li>
-                        <a th:href="@{/notes/notes(pageNum=${totalPages})}" th:text="${totalPages}"></a>
+                        <a th:href="@{/notes/notes(pageNum=${totalPages}, title=${param.title})}" th:text="${totalPages}"></a>
                     </li>
                 </th:block>
 
-                <li class="${currentPage == totalPages ? 'disabled' : ''}">
-                    <a th:href="@{/notes/notes(pageNum=${currentPage + 1})}" aria-label="Next">
+                <li th:class="${currentPage == totalPages} ? 'disabled' : ''">
+                    <a th:href="@{/notes/notes(pageNum=${currentPage + 1}, title=${param.title})}" aria-label="Next">
                         <span aria-hidden="true">&raquo;</span>
                     </a>
                 </li>

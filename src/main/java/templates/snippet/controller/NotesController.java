@@ -22,9 +22,10 @@ public class NotesController {
     private ISnippetCodeMapper snippetCodeMapper;
 
     @GetMapping("/notes")
-    public String notes(ModelMap map, @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "8") int pageSize) {
-        PageDomain pageDomain = new PageDomain();
-        int countTotalSnippets = snippetCodeMapper.countTotalSnippets();
+    public String notes(ModelMap map,@RequestParam(required = false) String title, @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "8") int pageSize) {
+        SnippetCode pageDomain = new SnippetCode();
+        pageDomain.setTitle(title);
+        int countTotalSnippets = snippetCodeMapper.countTotalSnippets(pageDomain);
         int totalPages = (int) Math.ceil((double) countTotalSnippets / pageSize);
 
         pageNum = Math.max(1, Math.min(pageNum, totalPages)); // Ensure pageNum is within bounds
@@ -33,6 +34,7 @@ public class NotesController {
 
         List<SnippetCode> notes = snippetCodeMapper.selectSnippetWithPagination(pageDomain);
         map.put("notes", notes);
+        map.put("title", title);
         map.put("currentPage", pageNum);
         map.put("countTotalSnippets", countTotalSnippets);
         map.put("totalPages", totalPages);

@@ -25,6 +25,6 @@ public interface ISnippetCodeMapper {
     @Select("select ps from (select  s.ps as ps from SOURCE_CODE s) where ps is not null")
     List<String> selectSnippetPs();
     List<SnippetCode> selectSnippet(SnippetCode snippetCode);
-    List<SnippetCode> selectSnippetWithPagination(PageDomain pageDomain);
-    int countTotalSnippets();
+    List<SnippetCode> selectSnippetWithPagination(SnippetCode snippetCode);
+    int countTotalSnippets(SnippetCode snippetCode);
 }

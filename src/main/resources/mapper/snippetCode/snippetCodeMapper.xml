@@ -81,13 +81,19 @@
     </select>
 
     <!-- New mapping for pagination -->
-    <select id="selectSnippetWithPagination" parameterType="templates.page.PageDomain" resultMap="sourceCode">
-        SELECT * FROM SOURCE_CODE
+    <select id="selectSnippetWithPagination" parameterType="templates.snippet.doman.SnippetCode" resultMap="sourceCode">
+        <include refid="selectSnippet"/>
+        <where>
+            <if test="title != null  "> or upper(s.title) like upper(concat('%', #{title} , '%'))</if>
+        </where>
         LIMIT #{pageNum}, #{pageSize}
     </select>
 
     <!-- New mapping to count total snippets -->
-    <select id="countTotalSnippets" resultType="int">
+    <select id="countTotalSnippets" parameterType="templates.snippet.doman.SnippetCode" resultType="int">
         SELECT COUNT(*) FROM SOURCE_CODE
+        <where>
+            <if test="title != null  "> or upper(title) like upper(concat('%', #{title} , '%'))</if>
+        </where>
     </select>
 </mapper>

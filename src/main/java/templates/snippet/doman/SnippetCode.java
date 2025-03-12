@@ -3,6 +3,7 @@ package templates.snippet.doman;
 
 import lombok.Data;
 import lombok.ToString;
+import templates.page.PageDomain;
 
 import java.util.Date;
 
@@ -13,7 +14,7 @@ import java.util.Date;
  */
 @Data
 @ToString
-public class SnippetCode{
+public class SnippetCode extends PageDomain {
     private Long id;
     private String data;
     private String ps;

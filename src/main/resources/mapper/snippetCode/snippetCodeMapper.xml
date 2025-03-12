@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="templates.snippet.mapper.ISnippetCodeMapper">
+    <resultMap type="templates.snippet.doman.SnippetCode" id="sourceCode">
+        <result property="id" column="id"/>
+        <result property="data" column="data"/>
+        <result property="identification" column="identification"/>
+        <result property="title" column="title"/>
+        <result property="type" column="type"/>
+        <result property="ps" column="ps"/>
+        <result property="mould" column="mould"/>
+        <result property="state" column="state"/>
+        <result property="modifyDate" column="modify_date"/>
+        <result property="createDate" column="create_date"/>
+    </resultMap>
+    <sql id="selectSnippet">
+        SELECT s.id, s.data, s.identification,  s.type, s.title,s.state,s.ps,s.mould,s.modify_date,s.create_date  FROM SOURCE_CODE s
+    </sql>
+    <select id="selectSnippetCode"  resultMap="sourceCode">
+        <include refid="selectSnippet"/>
+    </select>
+    <select id="selectSnippetCodeById" parameterType="Long" resultMap="sourceCode">
+        <include refid="selectSnippet"/>
+        WHERE s.id = #{id}
+    </select>
+<!--    由于必须只能删除未锁定的数据,所以可以写死,为STATE='0'-->
+    <delete id="deleteSnippetCode" parameterType="Long">
+        delete from  SOURCE_CODE s WHERE s.id = #{id} and s.STATE='0'
+    </delete>
+<!--    <insert id="insertSnippetCode" parameterType="templates.snippet.doman.SnippetCode" useGeneratedKeys="true" keyProperty="id">-->
+    <insert id="insertSnippetCode" parameterType="templates.snippet.doman.SnippetCode">
+        insert into SOURCE_CODE
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            <if test="data != null  ">data,</if>
+            <if test="identification != null ">identification,</if>
+            <if test="title != null  ">title,</if>
+            <if test="type != null  ">type,</if>
+            <if test="ps != null  ">ps,</if>
+            <if test="mould != null  ">mould,</if>
+            <if test="state != null  ">state,</if>
+            <if test="createDate != null  ">create_date,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            #{id},
+            <if test="data != null  ">#{data},</if>
+            <if test="identification != null ">#{identification},</if>
+            <if test="title != null  ">#{title},</if>
+            <if test="type != null  ">#{type},</if>
+            <if test="ps != null  ">#{ps},</if>
+            <if test="mould != null  ">#{mould},</if>
+            <if test="state != null  ">#{state},</if>
+            <if test="createDate != null  ">#{createDate},</if>
+        </trim>
+    </insert>
+
+    <update id="updateSnippetCode" parameterType="templates.snippet.doman.SnippetCode">
+        update SOURCE_CODE
+        <trim prefix="set" suffixOverrides=",">
+            modify_date=SYSDATE(),
+            <if test="data != null  ">data = #{data}, </if>
+            <if test="title != null  ">title = #{title},</if>
+            <if test="type != null  ">type = #{type},</if>
+            <if test="ps != null  ">ps = #{ps},</if>
+            <if test="mould != null  ">mould = #{mould},</if>
+            <if test="state != null  ">state = #{state},</if>
+        </trim>
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectSnippet"  resultMap="sourceCode" parameterType="templates.snippet.doman.SnippetCode">
+        <include refid="selectSnippet"/>
+        <where>
+            <if test="title != null  "> or upper(s.title) like upper(concat('%', #{title} , '%'))</if>
+            <if test="type != null  "> or upper(s.type) like upper(concat('%', #{type} , '%'))</if>
+            <if test="state != null  "> or upper(s.state) like upper(concat('%', #{state} , '%'))</if>
+            <if test="ps != null  "> or upper(s.ps) like upper(concat('%', #{ps} , '%'))</if>
+        </where>
+    </select>
+
+    <!-- New mapping for pagination -->
+    <select id="selectSnippetWithPagination" parameterType="templates.page.PageDomain" resultMap="sourceCode">
+        SELECT * FROM SOURCE_CODE
+        LIMIT #{pageNum}, #{pageSize}
+    </select>
+
+    <!-- New mapping to count total snippets -->
+    <select id="countTotalSnippets" resultType="int">
+        SELECT COUNT(*) FROM SOURCE_CODE
+    </select>
+</mapper>

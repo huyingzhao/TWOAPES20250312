@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" th:href="@{/fav/favicon.ico}">
+    <title>表格式笔记</title>
+</head>
+<div th:include="include::css"></div>
+<div th:include="include::jsStart"></div>
+<div th:include="snippet/alert::add"></div>
+<div th:include="snippet/alert::edit"></div>
+<div th:include="snippet/alert::detail"></div>
+<div th:include="include::jsEnd"></div>
+<style rel="stylesheet">
+    body {
+        margin: 25px;
+    }
+</style>
+<script th:src="@{/snippet/snippet.js}" type="text/javascript"></script>
+
+<body>
+    <ol class="breadcrumb">
+        <li><a href="/index/index">首页</a></li>
+        <li class="active">表格式笔记</li>
+    </ol>
+    <div>
+        <div>
+            <label for="typeSelect">类型</label>
+            <select id="typeSelect" class="selectpicker" data-actions-box="true">
+                <option value="">全部</option>
+                <option th:each="snippet : ${snippetCodeTypeList}" th:value="${snippet.type}" th:text="${snippet.type}">
+                </option>
+            </select>
+        </div>
+        <div class="btn-group" role="group" aria-label="操作">
+            <span hidden id="index"></span>
+            <button onclick="deleteButton()" type="button" class="btn btn-primary"><i class="far fa-trash-alt"></i>删除
+            </button>
+            <button onclick="clockButton()" type="button" class="btn btn-primary"><i class="fas fa-lock"></i>锁定
+            </button>
+            <button onclick="unClockButton()" type="button" class="btn btn-primary"><i class=" fas fa-lock-open"></i>解锁
+            </button>
+            <button onclick="addDetailEmp()" type="button" class="btn btn-primary" data-toggle='modal'
+                data-target='#add'><i class="fas fa-plus"></i>新增
+            </button>
+            <label for="selectSearch"></label>
+            <select id="selectSearch" class="selectpicker" data-actions-box="true">
+                <option value="title">标题</option>
+                <option selected value="type">类型</option>
+                <option value="state">状态</option>
+                <option value="ps">ps</option>
+            </select>
+            <label for="search"></label>
+            <input type="text" class="form-control" name="search" id="search" placeholder="查询内容" />
+            <button type="button" onclick="searchDetail()" class="btn btn-primary"><i class="fas fa-search"></i>查询
+            </button>
+        </div>
+    </div>
+    <div>
+        <table style="table-layout: fixed;" id="bootstrap-table"></table>
+    </div>
+
+    <ol class="breadcrumb">
+        <li><a href="/index/index">首页</a></li>
+        <li class="active">表格式笔记</li>
+    </ol>
+    <div style="margin-top: 5%;text-align: center">
+        <p>Copyright © 2022 <a href="http://hyz.taofile.cn:8099/">hyz.taofile.cn</a> 版权所有. </p>
+    </div>
+</body>
+<style>
+    .modal-dialog {
+        margin: 5% 0 0 15%;
+    }
+
+    .modal-content {
+        min-width: 1000px;
+        max-width: 100%;
+        overflow-y: auto;
+        /* max-height: 90vh; */
+    }
+
+    #detailDataValue {
+        max-width: 100%;
+        margin: 0 auto;
+        word-wrap: break-word;
+    }
+
+    .code-wrapper {
+        position: relative;
+        margin: 15px 0;
+    }
+
+    .copy-button {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        padding: 3px 10px;
+        font-size: 12px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        transition: all 0.2s;
+    }
+
+    .copy-button:hover {
+        background: #e9ecef;
+        transform: translateY(-1px);
+    }
+
+    .form-inline .form-control {
+        width: 95%;
+    }
+
+    textarea {
+        resize: none;
+        font-size: large;
+        white-space: nowrap;
+    }
+</style>
+<script th:inline="javascript">
+    var $table = $('#bootstrap-table');
+    var webPx = "/snippet/";
+
+    function initTable() {
+        $table.bootstrapTable({
+            method: 'post',
+            queryParams: function (params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    orderByColumn: "type,title",
+                    isAsc: "asc",
+                    drop: "title"
+                };
+            },
+            url: webPx + "view",
+            undefinedText: "",
+            pagination: true,
+            sidePagination: "server",
+            pageNumber: 1,
+            pageSize: 25,
+            pageList: [25, 50, 100, 200, 500, 1500, 3000],
+            showExport: true,
+            exportOptions: {
+                fileName: '表格笔记',
+                ignoreColumn: ['snippetCheck', 'snippetIndex', 'option', 'state']
+            },
+            exportDataType: 'selected',
+            exportTypes: ['csv', 'excel'],
+            showColumns: true,
+            showToggle: false,
+            contentType: "application/json",
+            cache: false,
+            showFooter: false,
+            showRefresh: true,
+            uniqueId: "id",
+            fixedColumns: false,
+            detailView: false,
+            clickToSelect: false,
+            search: false,
+            singleSelect: false,
+            multipleSelectRow: false,
+            editable: true,
+            columns: [
+                [{
+                    field: 'snippetCheck',
+                    width: '3%',
+                    checkbox: true
+                }, {
+                    field: 'title',
+                    width: '15%',
+                    title: '标题',
+                    align: 'left',
+                    formatter: function (value, row, index) {
+                        return "<a href='javascript:void(0)' onclick='detail(" + index + ")' data-toggle='modal' data-target='#detail'>" + value + "</a> ";
+
+                    }
+                }, {
+                    field: 'type',
+                    width: '10%',
+                    title: '类型',
+                    align: 'left',
+                    formatter: function (value) {
+                        if (value == null || value === "") {
+                            return "";
+                        } else {
+                            return value
+                        }
+                    }
+                },
+                {
+                    field: 'state',
+                    width: '8%',
+                    title: '状态',
+                    align: 'left',
+                    editable: {
+                        type: 'select',
+                        title: '状态',
+                        source: [{
+                            value: "0",
+                            text: "未锁定"
+                        }, {
+                            value: "1",
+                            text: "已锁定"
+                        }]
+                    }
+                },
+                {
+                    field: 'createDate',
+                    width: '5%',
+                    title: '创建日期',
+                    align: 'left',
+                    formatter: function (value, row, index) {
+                        return changeDateFormat(value);
+                    },
+                    visible: false
+                }, {
+                    field: 'modifyDate',
+                    width: '5%',
+                    title: '更新日期',
+                    align: 'left',
+                    formatter: function (value, row, index) {
+                        return changeDateFormat(value);
+                    },
+                    visible: false
+                }, {
+                    field: 'option',
+                    width: '8%',
+                    title: '操作',
+                    align: 'left',
+                    formatter: function (value, row, index) {
+                        var actions = [];
+                        actions.push("<a href='javascript:void(0)' onclick='detail(" + index + ")' class='glyphicon glyphicon-eye-open' data-toggle='modal' data-target='#detail'>详情</a> ");
+                        if (row.mould === 'xml') {
+                            actions.push("<a target='_blank' href='/snippet/web?id=" + row.id + "' class='glyphicon glyphicon-folder-open'>网页</a> ");
+                        }
+                        actions.push("<a target='_blank' href='/snippet/detail?id=" + row.id + "' class='glyphicon glyphicon-folder-open'>查看</a> ");
+                        actions.push("<a href='javascript:void(0)' onclick='addDetail(" + index + ")' class='glyphicon glyphicon-plus' data-toggle='modal' data-target='#add'>新增</a> ");
+                        actions.push("<a href='javascript:void(0)' onclick='editDetail(" + index + ")' class='glyphicon glyphicon-pencil' data-toggle='modal' data-target='#edit'>修改</a> ");
+                        actions.push("<a href='javascript:void(0)' onclick='deleteData(" + index + ")' class='glyphicon glyphicon-trash' data-toggle='modal'>删除</a> ");
+                        return actions.join('');
+                    }
+                }]
+            ],
+            classes: 'table table-hover table-bordered',
+            striped: true,
+            sortable: true,
+            height: 600,
+            onRefresh(params) {
+                searchDetail();
+            },
+            onEditableSave: function (field, row, rowIndex, oldValue, $el) {
+                $.ajax({
+                    type: "post",
+                    url: webPx + "save",
+                    data: JSON.stringify(row),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (result) {
+                        if (result.state === MESSAGE.SUCCESS) {
+                            $table.bootstrapTable("uncheckAll");
+                            layer.msg(result.msg);
+                        }
+                    }
+                });
+            },
+            onDblClickCell: function (field, value, row) {
+                detailRow(row);
+                $("#detail").modal('show');
+            }, onLoadSuccess: function (data) {
+                var arrayObj = getArrayObj();
+                var addMould = $("#addMouldValue");
+                var editMould = $("#editMouldValue");
+
+                for (var i = 0; i < arrayObj.length; i++) {
+                    addMould.append(arrayObj[i]);
+                }
+
+                for (i = 0; i < arrayObj.length; i++) {
+                    editMould.append(arrayObj[i]);
+                }
+
+                addMould.selectpicker('refresh');
+                editMould.selectpicker('refresh');
+            }
+        })
+    }
+
+    $(function () {
+        initTable();
+        $.ajax({
+            type: "post",
+            url: webPx + "types",
+            data: {},
+            dataType: "json",
+            contentType: "application/json",
+            success: function (result) {
+                if (result.state === MESSAGE.SUCCESS) {
+                    var search = $('#search');
+                    var type = $('#addTypeValue');
+                    var editTypeValue = $('#editTypeValue');
+                    search.typeahead({
+                        source: JSON.parse(result.jsonType),
+                        autoSelect: true
+                    });
+                    type.typeahead({
+                        source: JSON.parse(result.jsonType),
+                        autoSelect: true
+                    });
+                    editTypeValue.typeahead({
+                        source: JSON.parse(result.jsonType),
+                        autoSelect: true
+                    });
+                }
+            }
+        });
+
+        $.ajax({
+            type: "post",
+            url: webPx + "ps",
+            data: {},
+            dataType: "json",
+            contentType: "application/json",
+            success: function (result) {
+                if (result.state === MESSAGE.SUCCESS) {
+                    var ps = $('#addPsValue');
+                    ps.typeahead({
+                        source: JSON.parse(result.jsonPs),
+                        autoSelect: true
+                    });
+
+                    var editPsValue = $('#editPsValue');
+                    editPsValue.typeahead({
+                        source: JSON.parse(result.jsonPs),
+                        autoSelect: true
+                    });
+                }
+            }
+        });
+    })
+
+    function detail(index) {
+        $("#index").text(index);
+        var rows = $table.bootstrapTable('getData');
+        var row = rows[index];
+        detailRow(row);
+    }
+
+
+    function copyDetail(index) {
+        var copyDetail = new ClipboardJS("#copyId" + index);
+        copyDetail.on('success', function (e) {
+            layer.msg("复制成功");
+        });
+
+        copyDetail.on('error', function (e) {
+            console.error('Action:', e.action);
+            console.error('Trigger:', e.trigger);
+        });
+    }
+
+    function editDetail(index) {
+        $("#index").text(index);
+        var rows = $table.bootstrapTable('getData');
+        var row = rows[index];
+        $("#editIdValue").val(row.id);
+        $("#editTitleValue").val(row.title);
+        $("#editTypeValue").val(row.type);
+        $("#editPsValue").val(row.ps);
+        $("#editDataValue").val(row.data);
+        $('#editStateValue').selectpicker('val', row.state);
+        $("#editMouldValue").selectpicker('val', row.mould);
+    }
+
+
+    function addDetailEmp() {
+        $("#addTypeValue").val("");
+        emp();
+    }
+
+    function addDetail(index) {
+        $("#index").text(index);
+        var rows = $table.bootstrapTable('getData');
+        var row = rows[index];
+        $("#addTypeValue").val(row.type);
+        $("#addMouldValue").selectpicker('val', row.mould);
+        emp();
+    }
+
+    function searchDetail() {
+        var ser = $("#search").val();
+        let selects = "";
+
+        $("#selectSearch option:selected").each(function () {
+            selects += $(this).val() + ",";
+        });
+
+        if (ser !== undefined) {
+            ser = ser.trim();
+            var params = $table.bootstrapTable('getOptions');
+            params.queryParams = function (params) {
+                return {
+                    pageSize: params.limit,
+                    pageNum: params.offset / params.limit + 1,
+                    searchValue: ser,
+                    orderByColumn: "type,title",
+                    isAsc: "asc",
+                    drop: selects
+                };
+            }
+
+            $table.bootstrapTable('refreshOptions', params);
+        }
+    }
+
+
+    function changeDateFormat(cellval) {
+        var date = new Date(cellval);
+        var y = date.getFullYear();
+        var m = date.getMonth() + 1;
+        var d = date.getDate();
+        var h = date.getHours();
+        var min = date.getMinutes();
+        var s = date.getSeconds();
+        return y + '-' + (m < 10 ? ('0' + m) : m) + '-' + (d < 10 ? ('0' + d) : d) + ' ' + (h < 10 ? ('0' + h) : h) + ':' + (min < 10 ? ('0' + min) : min) + ':' + (s < 10 ? ('0' + s) : s);
+    }
+
+    function deleteButton() {
+        var selections = $table.bootstrapTable('getSelections');
+        if (selections.length > 0) {
+            layer.open({
+                title: '温馨提示',
+                content: "确定需要删除所选项(共计" + selections.length + "个)吗?",
+                btn: ['确定', '取消'],
+                yes: function (index) {
+                    var data = JSON.stringify(selections);
+                    $.ajax({
+                        type: "post",
+                        url: webPx + "deleteList",
+                        data: data,
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function (result) {
+                            if (result.state === MESSAGE.SUCCESS) {
+                                searchDetail();
+                            }
+                        }
+                    });
+                    layer.close(index);
+                }
+            });
+        }
+    }
+
+    function deleteData(index) {
+        var rows = $table.bootstrapTable('getData');
+        var row = rows[index];
+        layer.open({
+            title: '温馨提示',
+            content: "确定需要删除(" + row.title + ")吗?",
+            btn: ['确定', '取消'],
+            yes: function (index) {
+                $.ajax({
+                    type: "post",
+                    url: webPx + "delete",
+                    data: JSON.stringify(row),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (result) {
+                        if (result.state === MESSAGE.SUCCESS) {
+                            searchDetail();
+                        }
+                    }
+                });
+                layer.close(index);
+            }
+        });
+    }
+
+    function clockButton() {
+        var selections = $table.bootstrapTable('getSelections');
+        if (selections.length > 0) {
+            layer.open({
+                title: '温馨提示',
+                content: "确定需要锁定所选项(共计" + selections.length + "个)吗?",
+                btn: ['确定', '关闭'],
+                yes: function (index) {
+                    var data = JSON.stringify(selections);
+                    $.ajax({
+                        type: "post",
+                        url: webPx + "clock",
+                        data: data,
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function (result) {
+                            if (result.state === MESSAGE.SUCCESS) {
+                                searchDetail();
+                            }
+                        }
+                    });
+                    layer.close(index);
+                }
+            });
+        }
+    }
+
+    function unClockButton() {
+        var selections = $table.bootstrapTable('getSelections');
+        if (selections.length > 0) {
+            layer.open({
+                title: '温馨提示',
+                content: "确定需要解锁所选项(共计" + selections.length + "个)吗?",
+                btn: ['确定', '关闭'],
+                yes: function (index) {
+                    var data = JSON.stringify(selections);
+                    $.ajax({
+                        type: "post",
+                        url: webPx + "unClock",
+                        data: data,
+                        dataType: "json",
+                        contentType: "application/json",
+                        success: function (result) {
+                            if (result.state === MESSAGE.SUCCESS) {
+                                searchDetail();
+                            }
+                        }
+                    });
+                    layer.close(index);
+                }
+            });
+        }
+    }
+
+    function cancel() {
+        $("#addCount").text("0");
+    }
+
+    function editCancel() {
+        $("#editCount").text("0");
+    }
+
+    $("#typeSelect ").change(() => {
+        $("#search").val($("#typeSelect option:selected").val());
+        searchDetail();
+    });
+</script>
+
+</html>

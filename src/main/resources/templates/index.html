@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8"/>
+    <link rel="shortcut icon" th:href="@{/fav/favicon.ico}">
+    <title>首页</title>
+</head>
+<div th:include="include::css"></div>
+<div th:include="include::jsStart"></div>
+<body>
+<div style="width: 100%">
+    <nav class="navbar navbar-default">
+        <div class="container-fluid">
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav">
+                    <li><a href="/snippet/snippet"><i class="far fa-sticky-note"></i>表格式笔记</a></li>
+                    <li><a href="/notes/notes"><i class="fas fa-sticky-note"></i>瀑布式笔记</a></li>
+                    <li><a href="/ascii/ascii"><i class="fas fa-atlas"></i>ASCII</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+</div>
+<div style="margin-top: 5%;text-align: center">
+    <p>Copyright © 2022 <a href="http://hyz.taofile.cn:8099/">hyz.taofile.cn</a> 版权所有. </p>
+</div>
+</body>
+</html>

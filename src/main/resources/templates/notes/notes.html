@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>瀑布式笔记</title>
+</head>
+<div th:include="include::css"></div>
+<div th:include="include::jsStart"></div>
+<div th:include="snippet/alert::add"></div>
+<div th:include="snippet/alert::edit"></div>
+<div th:include="snippet/alert::detail"></div>
+<div th:include="include::jsEnd"></div>
+<style rel="stylesheet">
+    body {
+        font-size: 14px;
+        margin: 25px;
+    }
+
+    h3.alert.alert-info {
+        height: 100px;
+    }
+
+    .col-sm-4 {
+        width: 25%;
+    }
+
+    .modal-dialog {
+        margin: 5% 0 0 20%;
+    }
+
+    .modal-content {
+        min-width: 1200px;
+        max-width: 100%;
+        overflow-y: auto;
+        /* max-height: 90vh; */
+    }
+
+    #detailDataValue {
+        max-width: 100%;
+        margin: 0 auto;
+        word-wrap: break-word;
+    }
+
+    .code-wrapper {
+        position: relative;
+        margin: 15px 0;
+    }
+
+    .copy-button {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        padding: 3px 10px;
+        font-size: 12px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        transition: all 0.2s;
+    }
+
+    .copy-button:hover {
+        background: #e9ecef;
+        transform: translateY(-1px);
+    }
+
+    .form-inline .form-control {
+        width: 95%;
+    }
+
+    textarea {
+        resize: none;
+        font-size: large;
+        white-space: nowrap;
+    }
+</style>
+<script th:src="@{/snippet/snippet.js}" type="text/javascript"></script>
+
+<body>
+    <ol class="breadcrumb">
+        <li><a href="/index/index">首页</a></li>
+        <li class="active">瀑布式笔记</li>
+    </ol>
+    <h1>瀑布式笔记</h1>
+
+    <div class="row">
+        <div th:each="notes : ${notes}" class="col-sm-4">
+            <div class="thumbnail">
+                <div class="caption">
+                    <h3 class="alert alert-info" role="tab" th:text="${notes.title}"></h3>
+                    <a style="font-size: 18px" href='javascript:void(0)' class='glyphicon glyphicon-copy'
+                        th:id="'copyId' + ${notes.id}" th:onclick="'copyDetail(\'' + ${notes.id} + '\')'"
+                        data-clipboard-action='copy' th:data-clipboard-target="'#copyDetail' + ${notes.id}">
+                    </a>
+                    <a style="font-size: 18px" href='javascript:void(0)' th:onclick="'handleDetailOperations(\'' + ${notes.id} + '\')'"
+                        class='glyphicon glyphicon-eye-open' data-toggle='modal' data-target='#detail'></a>
+                    <a style="font-size: 18px" href='javascript:void(0)'
+                        th:onclick="'handleDetailOperations(\'' + ${notes.id} + '\')'" class='glyphicon glyphicon-pencil'
+                        data-toggle='modal' data-target='#edit'>
+                    </a>
+                    <span th:text="${notes.data}" 
+                        th:id="'copyDetail' + ${notes.id}"
+                        style="display: block; height: 300px; overflow-y: auto; white-space: pre; font-family: monospace;">
+                    </span>
+                    <p style="font-size: 16px" class="label label-primary" th:text="${notes.type}"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    当前显示 <span id="startRecord" th:text="${currentPage}"></span> 页，总共 <span id="totalRecords"
+        th:text="${countTotalSnippets}"></span>
+    条记录
+    <!-- Pagination -->
+    <nav aria-label="Page navigation">
+        <div class="text-center">
+            <ul class="pagination">
+                <li class="${currentPage == 1 ? 'disabled' : ''}">
+                    <a th:href="@{/notes/notes(pageNum=${currentPage - 1})}" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Display first page -->
+                <th:block th:if="${currentPage > 4}">
+                    <li>
+                        <a th:href="@{/notes/notes(pageNum=1)}" th:text="'1'"></a>
+                    </li>
+                    <li class="disabled"><span>...</span></li>
+                </th:block>
+
+                <!-- Display page numbers -->
+                <th:block th:each="page : ${#numbers.sequence(currentPage - 2, currentPage + 4)}"
+                    th:if="${page >= 1 && page <= totalPages}">
+                    <li class="${page == currentPage ? 'active' : ''}">
+                        <a th:href="@{/notes/notes(pageNum=${page})}" th:text="${page}"></a>
+                    </li>
+                </th:block>
+
+                <!-- Display last page -->
+                <th:block th:if="${currentPage < totalPages - 3}">
+                    <li class="disabled"><span>...</span></li>
+                    <li>
+                        <a th:href="@{/notes/notes(pageNum=${totalPages})}" th:text="${totalPages}"></a>
+                    </li>
+                </th:block>
+
+                <li class="${currentPage == totalPages ? 'disabled' : ''}">
+                    <a th:href="@{/notes/notes(pageNum=${currentPage + 1})}" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
+    <hr />
+    <ol class="breadcrumb">
+        <li><a href="/index/index">首页</a></li>
+        <li class="active">瀑布式笔记</li>
+    </ol>
+    <div style="margin-top: 5%;text-align: center">
+        <p>Copyright © 2022 <a href="http://hyz.taofile.cn:8099/">hyz.taofile.cn</a> 版权所有. </p>
+    </div>
+</body>
+
+</html>
+<script th:inline="javascript">
+    function copyDetail(index) {
+        var copyDetail = new ClipboardJS("#copyId" + index);
+        copyDetail.on('success', function (e) {
+            layer.msg("复制成功");
+        });
+
+        copyDetail.on('error', function (e) {
+            console.error('Action:', e.action);
+            console.error('Trigger:', e.trigger);
+        });
+    }
+
+    var arrayObj = getArrayObj();
+    var addMould = $("#addMouldValue");
+    var editMould = $("#editMouldValue");
+
+    for (var i = 0; i < arrayObj.length; i++) {
+        addMould.append(arrayObj[i]);
+    }
+
+    for (i = 0; i < arrayObj.length; i++) {
+        editMould.append(arrayObj[i]);
+    }
+
+    addMould.selectpicker('refresh');
+    editMould.selectpicker('refresh');
+</script>

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8"/>
+    <link rel="shortcut icon" th:href="@{/fav/favicon.ico}">
+    <title th:text="${title}"></title>
+</head>
+<div th:include="include::css"></div>
+<div th:include="include::jsStart"></div>
+<style rel="stylesheet">
+    body {
+        margin: 20px;
+    }
+
+    #detailDataValue {
+        max-width: 100%;
+        margin: 0 auto;
+        word-wrap: break-word;
+    }
+
+    .code-wrapper {
+        position: relative;
+        margin: 15px 0;
+    }
+
+    .copy-button {
+        position: absolute;
+        right: 5px;
+        top: 5px;
+        padding: 3px 10px;
+        font-size: 12px;
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 3px;
+        transition: all 0.2s;
+    }
+
+    .copy-button:hover {
+        background: #e9ecef;
+        transform: translateY(-1px);
+    }
+</style>
+<script th:src="@{/snippet/detail.js}" type="text/javascript"></script>
+<body>
+<ol class="breadcrumb">
+    <li><a href="/index/index">首页</a></li>
+    <li class="active">笔记详情</li>
+</ol>
+<div>
+    <label for="detailTypeValue">类型</label>
+    <textarea readonly name="type" class="form-control" rows="1"
+              cols="100%"
+              id="detailTypeValue" th:text="${type}"></textarea>
+    <div role="tabpanel" class="tab-pane active">
+        <button id="detailDataCopy" class='btn btn-primary' onclick="copyClipboard()"
+                data-clipboard-target="#detailDataValue">
+            复制
+        </button>
+        <span id="detailDataCopyText"></span><br/>
+        <span id="detailPsValue" th:text="${ps}"></span>
+        <div id="detailDataValue" th:text="${data}"></div>
+    </div>
+</div>
+</body>
+<script type="text/javascript">
+    // Configure Marked with Highlight.js
+    marked.use({
+        highlight: function(code, lang) {
+            const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+            return hljs.highlight(code, { language }).value;
+        },
+        langPrefix: 'hljs language-'
+    });
+    // Add this after marked configuration
+    hljs.configure({
+        cssSelector: 'pre code',
+        ignoreUnescapedHTML: true
+    });
+
+
+    document.getElementById('detailDataValue').innerHTML = marked.parse($('#detailDataValue').text());
+    addCodeCopyButtons(); // Add this after rendering
+    // Add this at the end to initialize highlighting
+    document.querySelectorAll('pre code').forEach((el) => {
+        hljs.highlightElement(el);
+    });
+
+    // Add copy function for code blocks
+    function addCodeCopyButtons() {
+        $('pre').each(function(index) {
+            const $pre = $(this);
+            const $codeBlock = $pre.find('code');
+            const uniqueId = `code-${Date.now()}-${index}`;
+
+            // Create wrapper and button using jQuery
+            const $wrapper = $('<div>').addClass('code-wrapper');
+            const $button = $('<button>')
+                .addClass('copy-button')
+                .html('📋 复制')
+                .attr('data-clipboard-target', `#${uniqueId}`);
+
+            // Set code block ID
+            $codeBlock.attr('id', uniqueId);
+
+            // Initialize ClipboardJS with jQuery element
+            const clipboard = new ClipboardJS($button[0]);
+
+            clipboard.on('success', (e) => {
+                layer.msg("复制成功");
+                e.clearSelection();
+            });
+
+            clipboard.on('error', async (e) => {
+                try {
+                    await navigator.clipboard.writeText($codeBlock.text());
+                    layer.msg("复制成功");
+                } catch (err) {
+                    window.prompt("复制失败，请手动选择文本后按 Ctrl+C 复制", $codeBlock.text());
+                }
+            });
+
+            // Reorganize DOM using jQuery methods
+            $pre.wrap($wrapper).parent().append($button);
+        });
+    }
+</script>
+</html>

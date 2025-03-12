@@ -1,0 +1,139 @@
+<div th:fragment="add">
+    <script th:src="@{/snippet/add.js}" type="text/javascript"></script>
+    <!-- Modal -->
+    <div id="add" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">新增</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="action" class="form-inline">
+                        <label for="addTitleValue">标题</label>
+                        <input class="form-control" type="text" name="title" id="addTitleValue" placeholder="标题"/>
+                        <label for="addTypeValue">类型</label>
+                        <input class="form-control" type="text" name="type" id="addTypeValue" placeholder="类型"/>
+                        <label for="addStateValue">笔记状态</label>
+                        <select id="addStateValue" name="state" class="selectpicker">
+                            <option value="0">未锁定</option>
+                            <option selected value="1">已锁定</option>
+                        </select>
+
+                        <div role="tabpanel" class="tab-pane active">
+                            <label for="addMouldValue">笔记类型</label>
+                            <select id="addMouldValue" name="mould" class="selectpicker">
+                                <option selected value="txt">txt</option>
+                            </select><br/>
+                            <label for="addDataValue">内容</label>
+                            <textarea name="data" class="form-control" rows="20" cols="150" id="addDataValue"
+                                      placeholder="内容"></textarea>
+                            <br/>
+                            <label for="addPsValue">ps&nbsp;&nbsp;&nbsp;</label>
+                            <input class="form-control" type="text" name="ps" id="addPsValue" placeholder="ps"/>
+                        </div>
+                    </form>
+                    <span hidden id="addCount">0</span>
+                </div>
+                <div class="modal-footer">
+                    <span id="addSaveResult" class="alert-link"></span>
+                    <button type="button" onclick="save()" class="btn btn-primary">保存</button>
+                    <button type="button" class="btn btn-primary" onclick="cancel()" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="edit">
+    <script th:src="@{/snippet/edit.js}" type="text/javascript"></script>
+    <!-- Modal -->
+    <div id="edit" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">修改</h4>
+                </div>
+                <div class="modal-body">
+                    <button id="editDataCopy" class='btn btn-primary' onclick="copyClipboard()"
+                            data-clipboard-target="#editDataValue">
+                        复制
+                    </button>
+                    <form id="editAction" class="form-inline">
+                        <label for="editTitleValue">标题</label>
+                        <input class="form-control" type="text" name="title" id="editTitleValue" placeholder="标题"/>
+                        <label for="editTypeValue">类型</label>
+                        <input class="form-control" type="text" name="type" id="editTypeValue" placeholder="类型"/>
+                        <label for="editStateValue">笔记状态</label>
+                        <select id="editStateValue" name="state" class="selectpicker">
+                            <option selected value="0">未锁定</option>
+                            <option value="1">已锁定</option>
+                        </select>
+                        <div role="tabpanel" class="tab-pane active">
+                            <label for="editMouldValue">笔记类型</label>
+                            <select id="editMouldValue" name="mould" class="selectpicker">
+                                <option selected value="txt">txt</option>
+                            </select><br/>
+                            <label for="editDataValue">内容</label>
+                            <textarea name="data" class="form-control" rows="20" cols="150" id="editDataValue"
+                                      placeholder="内容"></textarea>
+                            <br/>
+                            <label for="editPsValue">ps&nbsp;&nbsp;&nbsp;</label>
+                            <input class="form-control" type="text" name="ps" id="editPsValue" placeholder="ps"/>
+                            <span id="editDataCopyText"></span>
+                        </div>
+                        <label for="identification"></label>
+                        <input hidden name="identification" id="identification"/>
+                        <label hidden="hidden" for="editIdValue">id</label>
+                        <input class="form-control" type="hidden" name="id" id="editIdValue" placeholder="id"/>
+                    </form>
+                    <span hidden id="editCount">0</span>`
+                </div>
+                <div class="modal-footer">
+                    <span id="editSaveResult" class="alert-link"></span>
+                    <button type="button" onclick="editSave()" class="btn btn-primary">保存</button>
+                    <button type="button" onclick="editCancel()" class="btn btn-primary" data-dismiss="modal">取消
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:fragment="detail">
+    <script th:src="@{/snippet/detail.js}" type="text/javascript"></script>
+    <!-- Modal -->
+    <div class="modal fade" id="detail" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                            aria-hidden="true">&times;</span></button>
+                    <button id="detailDataCopy" class='btn btn-primary' onclick="copyClipboard()"
+                            data-clipboard-target="#detailDataValue">
+                        复制
+                    </button>
+                    <h4 id="detailTitleValue" class="modal-title"></h4>
+                </div>
+                <div class="modal-body">
+                    <div>
+                        <label for="detailTypeValue">类型</label>
+                        <textarea readonly name="type" class="form-control" rows="1" cols="150"
+                                  id="detailTypeValue"></textarea>
+                        <div role="tabpanel" class="tab-pane active">
+                            <span id="detailPsValue"></span>
+                            <div id="detailDataValue"></div>
+                            <span id="detailDataCopyText"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

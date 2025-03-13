@@ -1,18 +1,18 @@
 var webPxEdit = "/snippet/";
-var timeout = undefined;
-var dataCopy = new ClipboardJS("#editDataCopy");
+var editTimeout = undefined;
+var editDataCopy = new ClipboardJS("#editDataCopy");
 
-function copyClipboard() {
-    if (dataCopy !== undefined) {
-        dataCopy.on('success', function (e) {
+function editCopyClipboard() {
+    if (editDataCopy !== undefined) {
+        editDataCopy.on('success', function (e) {
             $("#editDataCopyText").text("复制成功");
-            timeout = setTimeout(function () {
+            editTimeout = setTimeout(function () {
                 $("#editDataCopyText").text("");
-                clearTimeout(timeout);
+                clearTimeout(editTimeout);
             }, 3000);
         });
 
-        dataCopy.on('error', function (e) {
+        editDataCopy.on('error', function (e) {
             console.error('Action:', e.action);
             console.error('Trigger:', e.trigger);
         });

@@ -1,4 +1,4 @@
-var timeout = undefined;
+var addTimeout = undefined;
 var webPxAdd = "/snippet/";
 
 function check() {
@@ -9,9 +9,9 @@ function check() {
 
 function save() {
     var data = JSON.stringify($('#action').serializeJSON());
-    timeout = setTimeout(function() {
+    addTimeout = setTimeout(function() {
         $("#addSaveResult").text("");
-        clearTimeout(timeout);
+        clearTimeout(addTimeout);
     }, 3000);
 
     if (check()) {

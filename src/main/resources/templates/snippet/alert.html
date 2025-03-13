@@ -58,10 +58,6 @@
                     <h4 class="modal-title">修改</h4>
                 </div>
                 <div class="modal-body">
-                    <button id="editDataCopy" class='btn btn-primary' onclick="copyClipboard()"
-                            data-clipboard-target="#editDataValue">
-                        复制
-                    </button>
                     <form id="editAction" class="form-inline">
                         <label for="editTitleValue">标题</label>
                         <input class="form-control" type="text" name="title" id="editTitleValue" placeholder="标题"/>
@@ -83,7 +79,6 @@
                             <br/>
                             <label for="editPsValue">ps&nbsp;&nbsp;&nbsp;</label>
                             <input class="form-control" type="text" name="ps" id="editPsValue" placeholder="ps"/>
-                            <span id="editDataCopyText"></span>
                         </div>
                         <label for="identification"></label>
                         <input hidden name="identification" id="identification"/>
@@ -93,7 +88,12 @@
                     <span hidden id="editCount">0</span>`
                 </div>
                 <div class="modal-footer">
+                    <span id="editDataCopyText"></span>
                     <span id="editSaveResult" class="alert-link"></span>
+                    <button id="editDataCopy" class='btn btn-primary' onclick="editCopyClipboard()"
+                            data-clipboard-target="#editDataValue">
+                        复制
+                    </button>
                     <button type="button" onclick="editSave()" class="btn btn-primary">保存</button>
                     <button type="button" onclick="editCancel()" class="btn btn-primary" data-dismiss="modal">取消
                     </button>
@@ -112,10 +112,6 @@
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
                             aria-hidden="true">&times;</span></button>
-                    <button id="detailDataCopy" class='btn btn-primary' onclick="copyClipboard()"
-                            data-clipboard-target="#detailDataValue">
-                        复制
-                    </button>
                     <h4 id="detailTitleValue" class="modal-title"></h4>
                 </div>
                 <div class="modal-body">
@@ -126,11 +122,15 @@
                         <div role="tabpanel" class="tab-pane active">
                             <span id="detailPsValue"></span>
                             <div id="detailDataValue"></div>
-                            <span id="detailDataCopyText"></span>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <span id="detailDataCopyText"></span>
+                    <button id="detailDataCopy" class='btn btn-primary' onclick="copyClipboard()"
+                            data-clipboard-target="#detailDataValue">
+                        复制
+                    </button>
                     <button type="button" class="btn btn-primary" data-dismiss="modal">取消</button>
                 </div>
             </div>

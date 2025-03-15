@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.StringUtils;
 
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -35,48 +36,22 @@ public class PageDomain {
 
     /**
      * 初始化分页
-     *
-     * @param pageDomain pageDomain
      */
-    public static void startPage(PageDomain pageDomain) {
-        if (pageDomain != null) {
-            String orderBy;
-            int pageNum;
-            int pageSize;
-
-            if (pageDomain.getPageNum() == null) {
-                pageNum = 1;
-            } else {
-                pageNum = pageDomain.getPageNum();
-            }
-
-            if (pageDomain.getPageSize() == null) {
-                pageSize = 20;
-            } else {
-                pageSize = pageDomain.getPageSize();
-            }
-
-            if (pageDomain.getOrderBy() == null) {
-                orderBy = "";
-            } else {
-                orderBy = pageDomain.getOrderBy();
-            }
-
-            log.debug("startPage:{}", PageHelper.startPage(pageNum, pageSize, orderBy));
-        }
+    public void startPage() {
+        log.debug("startPage:{}", PageHelper.startPage(pageNum, pageSize, getOrderBy()));
     }
 
     /**
      * @param list list
      * @return list分页
      */
-    public static <E> TableDataInfo getTableDataInfo(List<E> list) {
-        TableDataInfo rspData = new TableDataInfo(list);
+    public <E> HashMap<String, Object> getTableDataInfo(List<E> list) {
+        HashMap<String, Object> rspData = new HashMap<>();
         if (list != null) {
-            rspData.setCode(0);
-            rspData.setRows(list);
+            rspData.put("code", 0);
+            rspData.put("rows", list);
             PageInfo<?> pageInfo = new PageInfo<>(list);
-            rspData.setTotal(pageInfo.getTotal());
+            rspData.put("total", pageInfo.getTotal());
         }
 
         return rspData;

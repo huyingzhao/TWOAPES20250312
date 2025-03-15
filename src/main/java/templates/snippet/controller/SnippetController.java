@@ -7,7 +7,6 @@ import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.*;
 import templates.page.Ajax;
 import templates.page.PageDomain;
-import templates.page.TableDataInfo;
 import templates.snippet.doman.SnippetCode;
 import templates.snippet.mapper.ISnippetCodeMapper;
 
@@ -26,7 +25,7 @@ public class SnippetController {
     private final Ajax ajax;
 
     public SnippetController() {
-        ajax=new Ajax();
+        ajax = new Ajax();
     }
 
     @GetMapping("/snippet")
@@ -74,8 +73,8 @@ public class SnippetController {
 
     @RequestMapping("/view")
     @ResponseBody
-    public TableDataInfo snippetJson(@RequestBody PageDomain pageDomain) {
-        PageDomain.startPage(pageDomain);
+    public HashMap<String, Object> snippetJson(@RequestBody PageDomain pageDomain) {
+        pageDomain.startPage();
         List<SnippetCode> snippetCodes;
         if (pageDomain.getSearchValue() == null || pageDomain.getSearchValue().isEmpty()) {
             snippetCodes = snippetCodeMapper.selectSnippet(new SnippetCode());
@@ -83,13 +82,13 @@ public class SnippetController {
             snippetCodes = dropValue(pageDomain);
         }
 
-        return PageDomain.getTableDataInfo(snippetCodes);
+        return pageDomain.getTableDataInfo(snippetCodes);
     }
 
     @PostMapping("/save")
     @ResponseBody
     public Ajax save(@RequestBody SnippetCode snippetCode) {
-        if(snippetCode.getTitle() == null || snippetCode.getTitle().isEmpty()) {
+        if (snippetCode.getTitle() == null || snippetCode.getTitle().isEmpty()) {
             return ajax.warning("标题不能为空");
         }
 
